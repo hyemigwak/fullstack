@@ -3,7 +3,8 @@ const { Pool } = require("pg");
 const express = require('express');
 const cors = require('cors');
 const app = express();
-const bodyParser = require('body-parser')
+const bodyParser = require('body-parser');
+const multer  = require('multer');
 
 const server = require('http').createServer(app);
 
@@ -15,9 +16,20 @@ const pool = new Pool({
     port: process.env.port,
 });
 
+const upload = multer({
+    dest: __dirname + '/uploads',
+});
+
+app.use('/uploads', express.static("uploads"));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cors());
 app.use(bodyParser.json());
+
+app.post("/image", upload.single("file"), (req, res) => {
+    let imageUrl = `http://localhost:5000/uploads/${req.file.filename}`;
+    console.log(imageUrl,"imageUrl");
+    res.json({success: true, data: imageUrl});
+})
 
 app.get('/', (req,res) => {
     const sql = "SELECT * FROM memos";
@@ -76,6 +88,7 @@ app.delete("/delete", (req, res) => {
         res.status(200).send("success");
     })
 })
+
 
 const sql_create = `CREATE TABLE IF NOT EXISTS memos (
     Memo_ID SERIAL PRIMARY KEY,
