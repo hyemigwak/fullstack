@@ -82,7 +82,6 @@ app.get('/', (req,res) => {
         if(err){
             return console.error(err.message);
         }
-        console.log(result.rows);
         res.status(200).send(result.rows);
     })
 });
