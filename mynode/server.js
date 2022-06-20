@@ -72,7 +72,7 @@ app.post("/signup", (req, res) => {
 });
 
 app.post("/image", upload.single("file"), (req, res) => {
-    let imageUrl = `http://localhost:5000/uploads/${req.file.filename}`;
+    let imageUrl = `http://3.83.142.57:5000/uploads/${req.file.filename}`;
     res.json({success: true, data: imageUrl});
 })
 
