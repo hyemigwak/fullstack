@@ -21,6 +21,7 @@ const upload = multer({
     dest: __dirname + '/uploads',
 });
 
+app.use(express.static(__dirname + "/public"));
 app.use('/uploads', express.static("uploads"));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cors());
