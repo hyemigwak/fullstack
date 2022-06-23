@@ -14,6 +14,9 @@ module.exports = {
             email: user.email,
             password: user.password
         };
+        //header에는 type, 알고리즘 종류
+        // payload 유저정보
+        // signature 개인키로 서명한 전자 서명
           const token = jwt.sign(payload, key, options);
           return token;
     },
@@ -22,7 +25,6 @@ module.exports = {
         let decoded;
         try {
             decoded = jwt.verify(token, key);
-            console.log(decoded,"decoded");
         } catch (err) {
             if (err.message === 'jwt expired') {
                 return "jwt expired";
