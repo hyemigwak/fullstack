@@ -21,7 +21,7 @@ const upload = multer({
     dest: __dirname + '/uploads',
 });
 
-app.use(express.static(__dirname + "/public"));
+// app.use(express.static(__dirname + "/public"));
 app.use('/uploads', express.static("uploads"));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cors());
@@ -73,7 +73,7 @@ app.post("/signup", (req, res) => {
 });
 
 app.post("/image", upload.single("file"), (req, res) => {
-    let imageUrl = `http://3.83.142.57:5000/uploads/${req.file.filename}`;
+    let imageUrl = `http://localhost:5000/uploads/${req.file.filename}`;
     res.json({success: true, data: imageUrl});
 })
 
@@ -92,9 +92,10 @@ app.get("/detail/:memoId", (req, res) => {
     const sql = "SELECT * FROM memos WHERE memo_id = $1";
     pool.query(sql, [memoId], (err, result) => {
         if(err) {
+            res.status(400).send("fail");
             return console.error(err.message);
         }
-        res.send({ memoData: result.rows[0]});
+        res.status(200).json({ memoData: result.rows[0]});
     })
 });
 
@@ -115,6 +116,7 @@ app.post("/upload", (req, res) => {
     const oneMemo = [req.body.name, req.body.memo];
     pool.query(sql, oneMemo, (err, result) => {
         if(err) {
+            res.status(400).send("fail");
             return console.error(err.message);
         }
         res.status(200).send("success");
@@ -128,7 +130,6 @@ app.delete("/delete", (req, res) => {
         if(err){
             console.error(err.message);
             res.status(400).send("fail");
-
         }
         res.status(200).send("success");
     })
