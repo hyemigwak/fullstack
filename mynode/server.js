@@ -4,10 +4,11 @@ const express = require('express');
 const cors = require('cors');
 const app = express();
 const bodyParser = require('body-parser');
+// const OAuthServer = require('oauth2-server');
 const multer  = require('multer');
 const bcrypt = require('bcrypt');
-
 const server = require('http').createServer(app);
+const jwt = require("./auth");
 
 const pool = new Pool({
     user: process.env.user,
@@ -21,11 +22,13 @@ const upload = multer({
     dest: __dirname + '/uploads',
 });
 
-// app.use(express.static(__dirname + "/public"));
+app.use(express.static(__dirname + "/public"));
 app.use('/uploads', express.static("uploads"));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cors());
 app.use(bodyParser.json());
+
+
 
 app.post("/login", (req, res) => {
     const sql = "SELECT * FROM users WHERE email = $1";
@@ -38,11 +41,11 @@ app.post("/login", (req, res) => {
         } else {
             const checkPassword = await bcrypt.compare(req.body.password, result.rows[0].password);
             if(checkPassword) {
-                res.json({ success: true, email: req.body.email });
+                const token = await jwt.sign(req.body);
+                res.status(200).json({ success: true, token: token });
             } else {
-                res.json({ success: false, errorMessages: "password가 일치하지 않습니다" })
+                res.json({ success: false, errorMessages: "password가 일치하지 않습니다" });
             }
-
         }
     })
 })
@@ -77,7 +80,21 @@ app.post("/image", upload.single("file"), (req, res) => {
     res.json({success: true, data: imageUrl});
 })
 
-app.get('/', (req,res) => {
+app.get('/', async (req,res) => {
+    const token = req.headers.token;
+    if(!token) {
+        return res.status(401).json({success: false, errorMessage:"토큰이 없습니다.", code: 401})
+    };
+
+    const result = await jwt.verify(token, res);
+
+    if(result === "jwt expired") {
+        return res.status(401).json({ code: 401, errorMessages: "토큰이 만료되었습니다." })
+    }
+    if(result === "jwt not validate"){
+        return res.status(401).json({ code: 401, errorMessages: "유효하지 않은 토큰입니다." });
+    }
+
     const sql = "SELECT * FROM memos";
     pool.query(sql, [], (err, result) => {
         if(err){
