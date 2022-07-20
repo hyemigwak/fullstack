@@ -28,7 +28,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cors());
 app.use(bodyParser.json());
 
-app.get("/islogin", async (req, res) => {
+app.get("/islogin", async(req, res) => {
     const token = req.headers.token;
     if(!token) {
         return res.status(401).json({success: false, errorMessage:"토큰이 없습니다.", code: 401})
@@ -38,6 +38,7 @@ app.get("/islogin", async (req, res) => {
     res.status(200).json({ email: tokenInfo.email });
 
 });
+
 
 app.post("/login", (req, res) => {
     const sql = "SELECT * FROM users WHERE email = $1";
