@@ -40,7 +40,7 @@ app.get("/islogin", async(req, res) => {
 });
 
 
-app.post("/login", (req, res) => {
+app.post("login", (req, res) => {
     const sql = "SELECT * FROM users WHERE email = $1";
     pool.query(sql, [req.body.email], async (err, result) => {
         if(err) {
